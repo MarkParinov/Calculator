@@ -1,6 +1,6 @@
 # Golang calculator
 
-The following file contains functions and data structures used for math expressions evaluation. The functions
+The 'main.go' contains functions and data structures used for math expressions evaluation. The functions
 are capable of parsing any mathematical expression to postfix polish notation and then calculating the result.
 
 # Usage 

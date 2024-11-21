@@ -1,0 +1,136 @@
+package main
+
+import (
+	"fmt"
+)
+
+type operation struct {
+	operation string
+	priority  int
+}
+
+var NUMBERS = []int{1, 2, 3, 4, 5, 6, 7, 8, 9, 0}
+var NUMBERS_STRING = []string{"1", "2", "3", "4", "5", "6", "7", "8", "9", "0"}
+var OPERATION_SIGNS = []operation{
+	operation{"(", 0},
+	operation{")", 1},
+	operation{"/", 2},
+	operation{"*", 2},
+	operation{"+", 3},
+	operation{"-", 3},
+}
+
+/*
+	Operation sign priorities:
+		* , / 	- 	1
+		+, - 	- 	0
+		) 		-	2
+		( 		- 	3
+
+	Rules for parsing:
+		- An opened bracket is always added to the stack
+		- A closed bracket that closes the opened one moves all the operations in them to the output, destroying themselves afterwards
+
+*/
+
+// Secondary methods for easier development
+
+func ContainsOperation(operation_array []operation, value string) bool {
+	for n := 0; n < len(operation_array); n++ {
+		if operation_array[n].operation == value {
+			return true
+		}
+	}
+	return false
+}
+
+func ContainsInt(int_array []int, value int) bool {
+	for n := 0; n < len(int_array); n++ {
+		if int_array[n] == value {
+			return true
+		}
+	}
+	return false
+}
+
+func ContainsString(string_array []string, value string) bool {
+	for n := 0; n < len(string_array); n++ {
+		if string_array[n] == value {
+			return true
+		}
+	}
+	return false
+}
+
+// func isInt(s string) bool {
+// 	for _, c := range s {
+// 		if !unicode.IsDigit(c) {
+// 			return false
+// 		}
+// 	}
+// 	return true
+// }
+
+func StringToNotation(expr_string string) []string {
+
+	var output = []string{}
+	var stack = []string{}
+	var last_digit_is_num = false
+
+	for i := 0; i < len(expr_string); i++ { // The main parsing cycle
+
+		if ContainsString(NUMBERS_STRING, string(expr_string[i])) { // Parses the number with multiple digits correctly
+			if last_digit_is_num {
+				output[len(output)-1] += string(expr_string[i])
+			} else {
+				output = append(output, string(expr_string[i]))
+				last_digit_is_num = true
+			}
+		} else {
+			last_digit_is_num = false
+		}
+
+		if ContainsOperation(OPERATION_SIGNS, string(expr_string[i])) { // Operator logic
+
+			// if string(expr_string[i]) == "(" { // Insert an opening bracket
+			// 	stack = append(stack, string(expr_string[i]))
+			// }
+
+			if len(stack) == 0 {
+				stack = append(stack, string(expr_string[i]))
+			} else if string(expr_string[i]) == "+" || string(expr_string[i]) == "-" {
+				if stack[len(stack)-1] == "*" || stack[len(stack)-1] == "/" {
+					output = append(output, stack[len(stack)-1])
+					stack = append(stack[:len(stack)-1], stack[len(stack):]...)
+					stack = append(stack, string(expr_string[i]))
+				} else {
+					output = append(output, string(expr_string[i]))
+				}
+			} else {
+				fmt.Println("Poka tzhe ne znayu")
+			}
+
+		}
+
+		fmt.Println(string(expr_string[i])+":", output, stack)
+	}
+
+	output = append(output, stack...)
+
+	return output
+}
+
+func Calc(expression string) (float64, error) {
+	return 0, nil
+}
+
+func main() {
+	fmt.Println(StringToNotation("52-13*21-1"))
+}
+
+/*		stack							output
+
+1. 		['*', '(', '*', '+', ')']		[1, 2]
+2.		['*']							[1, 2, '*', '+']
+
+*/
